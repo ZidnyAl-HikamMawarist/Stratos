@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useAppStore } from './stores/useAppStore';
 import { Header } from './components/Header';
-import { Navigation } from './components/Navigation';
 import { LauncherScreen } from './screens/LauncherScreen';
 import { WorkspaceScreen } from './screens/WorkspaceScreen';
 import { RouterScreen } from './screens/RouterScreen';
@@ -24,11 +23,8 @@ export const App: React.FC = () => {
           : 'bg-nordic-bg text-nordic-text'
       }`}
     >
-      {/* Stratos Header */}
+      {/* Stratos Sleek Desktop Header */}
       <Header />
-
-      {/* Screen Navigation Tabs */}
-      <Navigation />
 
       {/* Main Dynamic Viewport */}
       <main className="flex-1 flex flex-col overflow-hidden">

@@ -14,6 +14,8 @@ interface AppState {
   metadata: AppMetadata | null;
   t: Translations;
 
+  workspaceMode: 'ide' | 'opencode';
+  setWorkspaceMode: (mode: 'ide' | 'opencode') => void;
   setTheme: (theme: StratosTheme) => void;
   toggleTheme: () => void;
   setLocale: (locale: StratosLocale) => void;
@@ -46,8 +48,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   theme: getInitialTheme(),
   locale: getInitialLocale(),
   currentScreen: 'launcher',
+  workspaceMode: 'ide',
   metadata: null,
   t: translations[getInitialLocale()],
+
+  setWorkspaceMode: (mode: 'ide' | 'opencode') => {
+    set({ workspaceMode: mode });
+  },
 
   setTheme: (theme: StratosTheme) => {
     if (typeof localStorage !== 'undefined') {
