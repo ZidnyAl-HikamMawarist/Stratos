@@ -166,6 +166,12 @@ const api: StratosApi = {
       return ipcRenderer.invoke(IPC_CHANNELS.AGENT_CANCEL_TASK);
     },
   },
+
+  window: {
+    minimize: () => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_MINIMIZE),
+    maximize: () => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_MAXIMIZE),
+    close: () => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_CLOSE),
+  },
 };
 
 contextBridge.exposeInMainWorld('stratos', api);

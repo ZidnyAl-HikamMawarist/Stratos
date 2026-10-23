@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import { join } from 'path';
 import { configureSecurityHeaders, setupWindowSecurity } from './security';
 import { registerIpcHandlers, setPrimaryWindow, initializeServices, cleanupTerminalServices } from './ipc';
@@ -6,6 +6,9 @@ import { registerIpcHandlers, setPrimaryWindow, initializeServices, cleanupTermi
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow(): void {
+  // Disable default native Electron menu bar to allow custom in-app header menu
+  Menu.setApplicationMenu(null);
+
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 850,
@@ -14,6 +17,7 @@ function createWindow(): void {
     title: 'Stratos',
     backgroundColor: '#0A0D14', // Default Obsidian Slate background to prevent white flash
     show: false,
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -22,6 +26,8 @@ function createWindow(): void {
       webSecurity: true,
     },
   });
+
+  mainWindow.setMenuBarVisibility(false);
 
   // Bind the authorized primary window to the IPC sender validation registry (CRIT-01, SEC-003)
   setPrimaryWindow(mainWindow);

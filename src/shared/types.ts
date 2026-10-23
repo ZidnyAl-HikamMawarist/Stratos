@@ -162,6 +162,11 @@ export const IPC_CHANNELS = {
   AGENT_SESSION_GET: 'agent:session-get',
   AGENT_SEND_PROMPT: 'agent:send-prompt',
   AGENT_CANCEL_TASK: 'agent:cancel-task',
+
+  // Window Controls
+  WINDOW_MINIMIZE: 'window:minimize',
+  WINDOW_MAXIMIZE: 'window:maximize',
+  WINDOW_CLOSE: 'window:close',
 } as const;
 
 export type IpcChannel = typeof IPC_CHANNELS[keyof typeof IPC_CHANNELS];
@@ -304,6 +309,11 @@ export interface StratosApi {
     getSession: () => Promise<AgentSession>;
     sendPrompt: (prompt: string, mode: 'ide' | 'terminal_agent', activeFilePath?: string, activeFileContent?: string) => Promise<AgentSession>;
     cancelTask: () => Promise<boolean>;
+  };
+  window: {
+    minimize: () => Promise<boolean>;
+    maximize: () => Promise<boolean>;
+    close: () => Promise<boolean>;
   };
 }
 

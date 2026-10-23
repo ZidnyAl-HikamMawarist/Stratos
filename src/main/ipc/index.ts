@@ -24,6 +24,9 @@ import { SecureCredentialStore, maskSecret } from '../services/credentials';
 import { LocalRouterService } from '../services/router';
 import { OpenRouterAdapter } from '../services/providers/openrouter';
 import { MockProviderAdapter } from '../services/providers/mock';
+import { GoogleAiStudioAdapter } from '../services/providers/google';
+import { GroqAdapter } from '../services/providers/groq';
+import { DeepSeekAdapter } from '../services/providers/deepseek';
 import { WorkspaceService } from '../services/workspace';
 import { TerminalService } from '../services/terminal';
 import { DiffReviewService } from '../services/diff';
@@ -194,7 +197,13 @@ export function registerIpcHandlers(): void {
 
       // Default models and capabilities per provider type
       let models = ['openrouter/auto', 'anthropic/claude-3.5-sonnet', 'openai/gpt-4o'];
-      if (providerData.providerType === 'mock') {
+      if (providerData.providerType === 'google-ai-studio') {
+        models = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash'];
+      } else if (providerData.providerType === 'groq') {
+        models = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+      } else if (providerData.providerType === 'deepseek') {
+        models = ['deepseek-chat', 'deepseek-reasoner'];
+      } else if (providerData.providerType === 'mock') {
         models = ['stratos-mock/test-model', 'stratos-mock/fast-model'];
       }
 
@@ -234,7 +243,24 @@ export function registerIpcHandlers(): void {
 
       const providers = database.listProviders();
       const prov = providers.find((p) => p.id === providerId);
-      const adapter = prov?.providerType === 'mock' ? new MockProviderAdapter() : new OpenRouterAdapter();
+
+      let adapter;
+      switch (prov?.providerType) {
+        case 'google-ai-studio':
+          adapter = new GoogleAiStudioAdapter();
+          break;
+        case 'groq':
+          adapter = new GroqAdapter();
+          break;
+        case 'deepseek':
+          adapter = new DeepSeekAdapter();
+          break;
+        case 'mock':
+          adapter = new MockProviderAdapter();
+          break;
+        default:
+          adapter = new OpenRouterAdapter();
+      }
 
       const result = await adapter.testConnection(key);
 
@@ -416,5 +442,37 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(IPC_CHANNELS.AGENT_CANCEL_TASK, async (event): Promise<boolean> => {
     if (!validateIpcSender(event)) throw new Error('Unauthorized IPC sender');
     return agentOrchestrator.cancelTask();
+  });
+
+  // --- Window Control Handlers ---
+  ipcMain.handle(IPC_CHANNELS.WINDOW_MINIMIZE, async (event): Promise<boolean> => {
+    if (!validateIpcSender(event)) throw new Error('Unauthorized IPC sender');
+    if (primaryWindow && !primaryWindow.isDestroyed()) {
+      primaryWindow.minimize();
+      return true;
+    }
+    return false;
+  });
+
+  ipcMain.handle(IPC_CHANNELS.WINDOW_MAXIMIZE, async (event): Promise<boolean> => {
+    if (!validateIpcSender(event)) throw new Error('Unauthorized IPC sender');
+    if (primaryWindow && !primaryWindow.isDestroyed()) {
+      if (primaryWindow.isMaximized()) {
+        primaryWindow.unmaximize();
+      } else {
+        primaryWindow.maximize();
+      }
+      return true;
+    }
+    return false;
+  });
+
+  ipcMain.handle(IPC_CHANNELS.WINDOW_CLOSE, async (event): Promise<boolean> => {
+    if (!validateIpcSender(event)) throw new Error('Unauthorized IPC sender');
+    if (primaryWindow && !primaryWindow.isDestroyed()) {
+      primaryWindow.close();
+      return true;
+    }
+    return false;
   });
 }
