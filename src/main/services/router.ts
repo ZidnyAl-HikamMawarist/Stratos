@@ -6,6 +6,9 @@ import { SecureCredentialStore, redactSecrets } from './credentials';
 import { ProviderAdapter, NormalizedChatRequest } from './providers/types';
 import { MockProviderAdapter } from './providers/mock';
 import { OpenRouterAdapter } from './providers/openrouter';
+import { GoogleAiStudioAdapter } from './providers/google';
+import { GroqAdapter } from './providers/groq';
+import { DeepSeekAdapter } from './providers/deepseek';
 
 export class LocalRouterService {
   private server: Server | null = null;
@@ -29,8 +32,15 @@ export class LocalRouterService {
     // Register supported provider adapters
     const mockAdapter = new MockProviderAdapter();
     const openRouterAdapter = new OpenRouterAdapter();
+    const googleAdapter = new GoogleAiStudioAdapter();
+    const groqAdapter = new GroqAdapter();
+    const deepSeekAdapter = new DeepSeekAdapter();
+
     this.adapters.set(mockAdapter.id, mockAdapter);
     this.adapters.set(openRouterAdapter.id, openRouterAdapter);
+    this.adapters.set(googleAdapter.id, googleAdapter);
+    this.adapters.set(groqAdapter.id, groqAdapter);
+    this.adapters.set(deepSeekAdapter.id, deepSeekAdapter);
   }
 
   public registerAdapter(adapter: ProviderAdapter): void {
