@@ -41,8 +41,8 @@ export const RouterScreen: React.FC = () => {
 
   // Add Provider Modal State
   const [isAddProviderOpen, setIsAddProviderOpen] = useState(false);
-  const [newProviderType, setNewProviderType] = useState<ProviderType>('openrouter');
-  const [newProviderName, setNewProviderName] = useState('');
+  const [newProviderType, setNewProviderType] = useState<ProviderType>('google-ai-studio');
+  const [newProviderName, setNewProviderName] = useState('Google AI Studio (Gemini)');
   const [newProviderKey, setNewProviderKey] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [testingId, setTestingId] = useState<string | null>(null);
@@ -200,7 +200,9 @@ export const RouterScreen: React.FC = () => {
             className={`px-4 py-2.5 text-xs font-medium border-b-2 transition-all capitalize ${
               activeTab === tab
                 ? 'border-blue-500 text-blue-500 font-semibold'
-                : 'border-transparent text-obsidian-muted hover:text-obsidian-text'
+                : isObsidian
+                ? 'border-transparent text-obsidian-muted hover:text-obsidian-text'
+                : 'border-transparent text-slate-500 hover:text-slate-900'
             }`}
           >
             {t.router.tabs[tab]}
@@ -604,12 +606,27 @@ export const RouterScreen: React.FC = () => {
                 <label className="block mb-1.5 font-medium">{t.router.providers.providerType}</label>
                 <select
                   value={newProviderType}
-                  onChange={(e) => setNewProviderType(e.target.value as ProviderType)}
-                  className={`w-full p-2.5 rounded-lg border outline-none ${
-                    isObsidian ? 'bg-obsidian-bg border-obsidian-border' : 'bg-slate-50 border-nordic-border'
+                  onChange={(e) => {
+                    const selected = e.target.value as ProviderType;
+                    setNewProviderType(selected);
+                    if (!newProviderName || newProviderName.startsWith('Google') || newProviderName.startsWith('OpenRouter') || newProviderName.startsWith('Groq') || newProviderName.startsWith('DeepSeek') || newProviderName.startsWith('Local')) {
+                      if (selected === 'google-ai-studio') setNewProviderName('Google AI Studio (Gemini)');
+                      else if (selected === 'openrouter') setNewProviderName('OpenRouter Account');
+                      else if (selected === 'groq') setNewProviderName('Groq Cloud');
+                      else if (selected === 'deepseek') setNewProviderName('DeepSeek Account');
+                      else if (selected === 'mock') setNewProviderName('Local Mock Provider');
+                    }
+                  }}
+                  className={`w-full p-2.5 rounded-lg border outline-none font-medium ${
+                    isObsidian
+                      ? 'bg-obsidian-bg border-obsidian-border text-white'
+                      : 'bg-slate-50 border-nordic-border text-slate-900'
                   }`}
                 >
-                  <option value="openrouter">OpenRouter API (Verified Provider)</option>
+                  <option value="google-ai-studio">Google AI Studio (Gemini API Resmi)</option>
+                  <option value="openrouter">OpenRouter API (Multi-provider)</option>
+                  <option value="groq">Groq Cloud API (Llama 3.3 / Fast)</option>
+                  <option value="deepseek">DeepSeek API (V3 / R1)</option>
                   <option value="mock">Local Mock Provider (Offline Testing)</option>
                 </select>
               </div>
@@ -619,11 +636,19 @@ export const RouterScreen: React.FC = () => {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. My OpenRouter Account"
+                  placeholder={
+                    newProviderType === 'google-ai-studio'
+                      ? 'e.g. Google AI Studio (Gemini)'
+                      : newProviderType === 'groq'
+                      ? 'e.g. Groq Cloud Account'
+                      : newProviderType === 'deepseek'
+                      ? 'e.g. DeepSeek Account'
+                      : 'e.g. OpenRouter Account'
+                  }
                   value={newProviderName}
                   onChange={(e) => setNewProviderName(e.target.value)}
                   className={`w-full p-2.5 rounded-lg border outline-none ${
-                    isObsidian ? 'bg-obsidian-bg border-obsidian-border' : 'bg-slate-50 border-nordic-border'
+                    isObsidian ? 'bg-obsidian-bg border-obsidian-border text-white' : 'bg-slate-50 border-nordic-border text-slate-900'
                   }`}
                 />
               </div>
@@ -633,11 +658,21 @@ export const RouterScreen: React.FC = () => {
                 <div className="relative">
                   <input
                     type={showKey ? 'text' : 'password'}
-                    placeholder={newProviderType === 'mock' ? 'mock-key (optional)' : 'sk-or-v1-...'}
+                    placeholder={
+                      newProviderType === 'google-ai-studio'
+                        ? 'AIzaSy... (API Key dari aistudio.google.com)'
+                        : newProviderType === 'groq'
+                        ? 'gsk_... (API Key dari console.groq.com)'
+                        : newProviderType === 'deepseek'
+                        ? 'sk-... (API Key dari platform.deepseek.com)'
+                        : newProviderType === 'mock'
+                        ? 'mock-key (opsional)'
+                        : 'sk-or-v1-... (API Key dari openrouter.ai)'
+                    }
                     value={newProviderKey}
                     onChange={(e) => setNewProviderKey(e.target.value)}
                     className={`w-full p-2.5 rounded-lg border outline-none pr-10 font-mono ${
-                      isObsidian ? 'bg-obsidian-bg border-obsidian-border' : 'bg-slate-50 border-nordic-border'
+                      isObsidian ? 'bg-obsidian-bg border-obsidian-border text-white' : 'bg-slate-50 border-nordic-border text-slate-900'
                     }`}
                   />
                   <button
