@@ -34,6 +34,7 @@ import {
   Search,
   ArrowUp,
   Plus,
+  Sparkles,
   Layers,
   FileDiff,
   PanelLeftClose,
